@@ -44,6 +44,9 @@ jobs:
       - name: Run Playwright tests on Edge
         env:
           BROWSER_CHANNELS: msedge
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_PASS: ${{ secrets.GMAIL_PASS }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
           EMAIL_SUBJECT: ${{ secrets.EMAIL_SUBJECT }}
           EMAIL_BODY: ${{ secrets.EMAIL_BODY }}
         run: npm run test
