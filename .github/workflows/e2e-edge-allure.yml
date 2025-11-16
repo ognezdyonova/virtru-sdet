@@ -37,6 +37,9 @@ jobs:
 
       - name: Fetch Virtru extension
         run: npm run fetch:extension
+        env:
+          # Provide stable fallback version to avoid chromiumdash flakiness
+          CHROME_PRODVERSION: 120.0.0.0
 
       - name: Run Playwright tests on Edge
         env:

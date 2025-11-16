@@ -18,20 +18,23 @@ async function resolveChromeVersion() {
     return process.env.CHROME_PRODVERSION;
   }
 
-  const platform = chromePlatform();
-  const releasesUrl = `https://chromiumdash.appspot.com/fetch_releases?channel=Stable&platform=${platform}&num=1`;
-  const response = await fetch(releasesUrl);
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch Chrome release info (HTTP ${response.status})`);
+  // Try to fetch the latest stable version; fall back to a safe default if unavailable (e.g., CI network issues).
+  try {
+    const platform = chromePlatform();
+    const releasesUrl = `https://chromiumdash.appspot.com/fetch_releases?channel=Stable&platform=${platform}&num=1`;
+    const response = await fetch(releasesUrl);
+    if (response.ok) {
+      const releases = await response.json();
+      const version = releases?.[0]?.version;
+      if (version) return version;
+    } else {
+      console.warn(`WARN: fetch_releases returned HTTP ${response.status}; using fallback version.`);
+    }
+  } catch (e) {
+    console.warn(`WARN: Failed to resolve Chrome version (${e?.message}); using fallback version.`);
   }
-
-  const releases = await response.json();
-  const version = releases?.[0]?.version;
-  if (!version) {
-    throw new Error('Stable Chrome version missing from release response.');
-  }
-  return version;
+  // Fallback that works with Web Store update service for CRX3
+  return '120.0.0.0';
 }
 
 async function downloadCrx(extensionId, prodVersion) {
