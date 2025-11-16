@@ -1,0 +1,20 @@
+<!-- file: 02-mcp-integration.mdc -->
+# MCP Integration
+
+## Tools
+- `repo/fs/ripgrep`: local full-text search with path and extension filters.
+- `http/openapi`: fetch and validate official specs/contracts.
+- `git`: `blame/log` for change provenance and impact analysis.
+
+## Usage Rules
+- Prefer local MCP before web search.
+- Narrow queries by path, language, and file type.
+- If results are ambiguous, state selection criteria and re-query.
+
+## Query Template
+- Goal, scope, paths, keywords, exclusions, expected anchors/sections.
+
+## Checklist
+- [ ] MCP query logged in evidence block.
+- [ ] Results cross-checked against ADR/API specs.
+- [ ] Ambiguities resolved or flagged with next steps.

@@ -1,0 +1,18 @@
+<!-- file: 05-security-and-performance.mdc -->
+# Security & Performance
+
+## Security Gate
+- Input validation, output encoding.
+- Secrets handling, least privilege, authn/authz checks.
+- OWASP: injections, XSS, CSRF, SSRF.
+- Logs: no PII, add correlation IDs.
+
+## Performance Gate
+- No N+1 queries; batch or cache.
+- Memory and CPU budgets respected.
+- Hot paths profiled if altered.
+
+## Checklist
+- [ ] Security implications reviewed.
+- [ ] Perf risks noted; budgets unchanged or justified.
+- [ ] Telemetry added for new critical paths.

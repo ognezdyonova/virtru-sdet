@@ -1,0 +1,19 @@
+<!-- file: 07-templates-and-checklists.mdc -->
+# Templates & Execution Flow
+
+## Response Template
+1) **Short summary**: goal, context, constraints, risks.
+2) **Solution options**: 2–4 items + recommended with rationale.
+3) **Search plan**: objective, key queries, target sections, validation.
+4) **Evidence block**: citations in required format.
+5) **Implementation plan**: steps/substeps, flags, contracts.
+6) **Done/TBD/Verify**: what’s done, what remains, how to verify.
+7) **Diagnostics** (if error): three paragraphs (root causes; repro/isolation; fix/prevention).
+
+## Diagnostics Rule
+- Always start with the three reasoning paragraphs before patching.
+- Apply minimal safe fix + tests + docs.
+
+## Stop Conditions
+- Missing search plan or evidence block.
+- Unclear requirements or conflicting sources without a resolution path.

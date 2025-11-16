@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      pages: write
+    env:
+      GMAIL_USER: ${{ secrets.GMAIL_USER }}
+      GMAIL_PASS: ${{ secrets.GMAIL_PASS }}
+      EMAIL_TO: ${{ secrets.EMAIL_TO }}
+      EMAIL_SUBJECT: "Virtru E2E ${{ github.sha }}"
+      EMAIL_BODY: "Hello from Playwright + Virtru!"
+      VIRTRU_EXT_PATH: extensions/virtru
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install deps
+        run: |
+          npm ci
+          npx playwright install --with-deps
+
+      - name: Download Virtru extension
+        run: npm run fetch:extension
+
+      - name: Install Allure CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y default-jre
+          curl -L -o allure.tgz https://github.com/allure-framework/allure2/releases/download/2.29.0/allure-2.29.0.tgz
+          sudo tar -zxvf allure.tgz -C /opt/
+          echo "/opt/allure-2.29.0/bin" >> $GITHUB_PATH
+
+      # If you checked in a zip instead of folder, uncomment:
+      # - name: Unpack Virtru extension
+      #   run: unzip extensions/virtru.zip -d extensions/virtru
+
+      - name: Run Playwright tests (headful via Xvfb)
+        run: |
+          xvfb-run --auto-servernum --server-args="-screen 0 1400x900x24" npm test
+        timeout-minutes: 20
+
+      - name: Generate Allure report
+        if: always()
+        run: |
+          allure generate --clean allure-results -o allure-report
+
+      - name: Upload Allure report as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report
+
+      - name: Upload Pages artifact
+        if: always()
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./allure-report
+
+      - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        uses: actions/deploy-pages@v4

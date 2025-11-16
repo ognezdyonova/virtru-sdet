@@ -1,0 +1,25 @@
+<!-- file: 06-pr-and-commits.mdc -->
+# PR & Commits
+
+## Commit Message Template
+```
+feat(scope): short summary
+- change 1
+- change 2
+Tests: added/updated
+Docs: updated
+Refs: issues/links
+```
+
+## PR Checklist
+- [ ] Builds and lints clean
+- [ ] Backward compatible or migration documented
+- [ ] Tests added/updated (unit/integration/regression)
+- [ ] Docs/CHANGELOG updated with references
+- [ ] Perf and security considered
+- [ ] Evidence block present and valid
+- [ ] Rollback plan or feature flag if risky
+
+## Review Rules
+- Explain “why”, not only “what”.
+- Link to ADR or create/update one if architecture changed.

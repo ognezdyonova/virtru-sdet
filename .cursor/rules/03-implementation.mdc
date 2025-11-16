@@ -1,0 +1,20 @@
+<!-- file: 03-implementation.mdc -->
+# Implementation
+
+## Planning
+- Decompose into steps/substeps. Define minimal increment.
+- Identify integration points. Add feature flag if risk > low.
+- Define contracts, inputs/outputs, and invariants.
+
+## Coding Rules
+- SOLID, clean architecture, type safety.
+- No public contract changes unless required and approved.
+- Keep changes atomic and scoped. Remove dead code only if safe.
+
+## Self-Check
+- Build and lint clean (no errors/warnings).
+- Run unit/integration suites relevant to touched modules.
+- Verify backward compatibility on public APIs/schemas.
+
+## Stop Conditions
+- Missing contract definition or unclear integration surface.

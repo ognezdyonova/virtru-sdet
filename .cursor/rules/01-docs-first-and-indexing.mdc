@@ -1,0 +1,29 @@
+<!-- file: 01-docs-first-and-indexing.mdc -->
+# Docs-First & Indexing
+
+## Source Priority (strict)
+1) Internal: `docs/`, `doc/`, `.cursor/`, ADR, README, API specs, DB migrations, tests, issues/PRs.
+2) Cursor Indexing/Docs: all indexed documents with analyzed external links.
+3) MCP servers (connected) for local and official sources.
+4) Official vendor docs on the web.
+5) Everything else = low trust.
+
+## Evidence Block (required)
+- Cite every key fact with at least one source.
+- Volatile or disputed facts require ≥2 independent sources.
+
+### Citation Format
+- `[DOC: path#anchor Lx–Ly]`
+- `[ADR: id/title]`
+- `[API: openapi.yaml /paths/.../get]`
+- `[IDX: title_or_alias → URL]`
+- `[MCP: tool@server {query}]`
+- `[EXT: domain.tld/page#section]`
+
+## Checklist
+- [ ] Search plan written (objective, key queries, target sections, validation criteria).
+- [ ] Evidence block present and valid.
+- [ ] Conflicts highlighted with references.
+
+## Stop Conditions
+- No coding if search plan or evidence block is missing.

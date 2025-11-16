@@ -1,0 +1,20 @@
+<!-- file: 04-testing.mdc -->
+# Testing Standards
+
+## Coverage Targets (touched code)
+- Lines ≥ 80%, branches ≥ 60% for changed areas.
+- Critical paths require explicit edge and negative tests.
+
+## Test Types
+- Unit: pure logic, deterministic, fast.
+- Integration: contracts, I/O boundaries.
+- Regression: lock fixed bugs with failing-before tests.
+
+## Rules
+- No flaky tests. Control time, randomness, concurrency.
+- Avoid overspecific snapshots; assert behavior not markup noise.
+
+## Checklist
+- [ ] New logic covered. Regressions locked.
+- [ ] Deterministic tests. No external side effects.
+- [ ] CI passing locally and in pipeline.
