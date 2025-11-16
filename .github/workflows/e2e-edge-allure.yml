@@ -44,6 +44,8 @@ jobs:
       - name: Run Playwright tests on Edge
         env:
           BROWSER_CHANNELS: msedge
+          EMAIL_SUBJECT: ${{ secrets.EMAIL_SUBJECT }}
+          EMAIL_BODY: ${{ secrets.EMAIL_BODY }}
         run: npm run test
 
       - name: Generate Allure report
