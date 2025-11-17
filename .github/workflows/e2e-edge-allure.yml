@@ -109,7 +109,7 @@ jobs:
 
   deploy-pages:
     needs: tests-edge
-    if: always()
+    if: ${{ needs.tests-edge.result == 'success' }}
     runs-on: ubuntu-latest
     environment:
       name: github-pages
