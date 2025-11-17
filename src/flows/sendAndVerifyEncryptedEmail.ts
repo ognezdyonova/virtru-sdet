@@ -11,6 +11,8 @@ export async function sendAndVerifyEncryptedEmail(page: Page): Promise<{
 }> {
   const inbox = new GmailInboxPage(page);
 
+  await inbox.goto();
+
   if (!(await inbox.isLoggedIn())) {
     await inbox.login(process.env.GMAIL_USER!, process.env.GMAIL_PASS!);
   }
