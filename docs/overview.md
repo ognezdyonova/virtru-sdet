@@ -19,19 +19,19 @@
 2. **Headful only**: Extensions require headful mode, so CI runs fully headed in Edge.
 3. **Virtru onboarding variability**: Multiple modals/prompts appear (Activate, Done, Secure message). Page objects call shared helpers to clear them before continuing.
 4. **Environment-driven data**: Gmail credentials, recipients, and Virtru extension path provided via `.env`/GitHub secrets.
-5. **Automation limits in Chrome**: Chrome currently unloads developer-mode extensions when it detects automation (even with `--load-extension`). After extensive mitigation attempts (fake profiles, external manifests, storage state), the Virtru extension still disappears on Chrome unless the browser is managed via Chrome Policies / Group Policy with a force-installed, signed Virtru extension. Because we do not control that enterprise configuration, **Edge is the only reliable channel**. Call this out explicitly during reviews so Chrome support is not expected until Google relaxes their policy or provides a signed automation-friendly package.
+5. **Automation limits in Chrome**: Chrome currently unloads developer-mode extensions when it detects automation (even with `--load-extension`). After extensive mitigation attempts (fake profiles, external manifests, storage state), the Virtru extension still disappears on Chrome unless the browser is managed via Chrome Policies / Group Policy with a force-installed, signed Virtru extension. Because we do not control that enterprise configuration, **Edge and Playwright’s bundled Chromium are the only reliable channels**. Call this out explicitly during reviews so “Chrome support” isn’t expected until Google relaxes their policy or provides a signed automation-friendly package.
 6. **Doc-first workflow**: This overview + checklists must be updated whenever flows or tooling change.
 
 ### CI, Allure & GitHub Pages
 - Workflow: `.github/workflows/e2e-edge-allure.yml`
-- Runs on Windows (Edge channel) to ensure the Virtru extension can load under automation.
-- Steps overview:
+- Runs two jobs:
+  - `windows-latest` + `BROWSER_CHANNELS=msedge` (verifies Virtru in `edge://extensions`, generates Allure, deploys Pages)
+  - `ubuntu-latest` + `BROWSER_CHANNELS=chromium` (validates the flow with Playwright’s bundled Chromium)
+- Steps overview (per job):
   1. Checkout & install dependencies (including Virtru extension via `npm run fetch:extension`).
   2. Restore Gmail storage state from the `GMAIL_STORAGE_STATE` secret (base64 `storageState.json`).
-  3. Run Playwright tests with `BROWSER_CHANNELS=msedge`.
-  4. Generate Allure report using `npx allure-commandline`.
-  5. Upload artifacts (Allure results, Playwright HTML report, test results, videos).
-  6. Upload `allure-report/` as the `github-pages` artifact and deploy via `actions/deploy-pages@v4`.
+  3. Run Playwright tests with the configured channel.
+  4. Edge job generates Allure via `npx allure-commandline`, uploads artifacts, and publishes GitHub Pages (`github-pages` artifact).
 - Required repository secrets:
   - `GMAIL_USER`, `GMAIL_PASS`, `EMAIL_TO`, `EMAIL_SUBJECT`, `EMAIL_BODY`
   - `GMAIL_STORAGE_STATE` (base64-encoded `storageState.json`)

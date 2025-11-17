@@ -81,7 +81,7 @@ async function applyStorageState(context: BrowserContext): Promise<void> {
 }
 
 export async function launchWithVirtruExtension(
-  channel: 'chrome' | 'msedge' = 'chrome'
+  channel: 'chrome' | 'msedge' | 'chromium' = 'chrome'
 ): Promise<BrowserContext> {
   const userDataDir = mkdtempSync(join(tmpdir(), 'pw-virtru-'));
   const resolvedExtensionPath = resolve(process.env.VIRTRU_EXT_PATH ?? DEFAULT_EXTENSION_PATH);
@@ -101,6 +101,7 @@ export async function launchWithVirtruExtension(
     args: [
       `--disable-extensions-except=${resolvedExtensionPath}`,
       `--load-extension=${resolvedExtensionPath}`,
+      '--disable-blink-features=AutomationControlled',
       '--no-sandbox',
       '--disable-dev-shm-usage',
       '--window-size=1920,1200',
