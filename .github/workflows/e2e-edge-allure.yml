@@ -41,6 +41,19 @@ jobs:
           # Provide stable fallback version to avoid chromiumdash flakiness
           CHROME_PRODVERSION: 120.0.0.0
 
+      - name: Restore Gmail storage state (if provided)
+        shell: pwsh
+        env:
+          STORAGE_STATE_B64: ${{ secrets.GMAIL_STORAGE_STATE }}
+        run: |
+          if (-not $env:STORAGE_STATE_B64) {
+            Write-Host "GMAIL_STORAGE_STATE secret not provided; will perform interactive login."
+            exit 0
+          }
+          $bytes = [Convert]::FromBase64String($env:STORAGE_STATE_B64)
+          [IO.File]::WriteAllBytes("storageState.json", $bytes)
+          Write-Host "Restored storageState.json from secret."
+
       - name: Run Playwright tests on Edge
         env:
           BROWSER_CHANNELS: msedge
@@ -49,6 +62,7 @@ jobs:
           EMAIL_TO: ${{ secrets.EMAIL_TO }}
           EMAIL_SUBJECT: ${{ secrets.EMAIL_SUBJECT }}
           EMAIL_BODY: ${{ secrets.EMAIL_BODY }}
+          PLAYWRIGHT_STORAGE_STATE: storageState.json
         run: npm run test
 
       - name: Generate Allure report
