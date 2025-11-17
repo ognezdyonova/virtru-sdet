@@ -79,15 +79,27 @@ export class GmailMessagePage {
   }
 
   private async readFallbackGmailBody(): Promise<string | null> {
-    const body = this.page
-      .locator('div[role="listitem"] div[dir="ltr"], div[aria-label="Message Body"]')
-      .first();
-    const text = await body.innerText().catch(() => '');
-    const trimmed = text?.trim() ?? '';
-    if (!trimmed || this.isEncryptedInstruction(trimmed)) {
-      return null;
+    const candidates = [
+      'div[role="listitem"] div[dir="ltr"]',
+      'div[data-message-id] div[dir="ltr"]',
+      'div[role="article"] div[dir="ltr"]',
+      '.a3s.aiL div[dir="ltr"]',
+      '.a3s.aiL',
+      'div[aria-label="Message Body"]',
+    ];
+
+    for (const selector of candidates) {
+      const body = this.page.locator(selector).first();
+      const exists = await body.isVisible({ timeout: 500 }).catch(() => false);
+      if (!exists) continue;
+      const text = await body.innerText().catch(() => '');
+      const trimmed = text?.trim() ?? '';
+      if (!trimmed || this.isEncryptedInstruction(trimmed)) {
+        continue;
+      }
+      return trimmed;
     }
-    return trimmed;
+    return null;
   }
 
   private isEncryptedInstruction(text: string): boolean {
