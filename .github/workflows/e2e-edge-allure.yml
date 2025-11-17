@@ -68,6 +68,8 @@ jobs:
       - name: Generate Allure report
         if: always()
         run: npm run allure:generate
+        env:
+          PATH: C:\hostedtoolcache\windows\Python\3.11.6\x64\Scripts;${{ env.Path }}
 
       - name: Upload Allure results artifact
         if: always()
@@ -106,6 +108,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: allure-report
+          name: github-pages
 
   deploy-pages:
     needs: tests-edge
