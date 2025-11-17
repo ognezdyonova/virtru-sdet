@@ -29,9 +29,14 @@ for (const channel of channels) {
 
       const { subject, body, protected: isProtected } = await sendAndVerifyEncryptedEmail(page);
 
-      expect(subject).toBe(expectedSubject);
-      expect(isProtected).toBe(true);
-      expect(normalize(body)).toContain(normalize(expectedBody));
+      expect(subject, `Expected subject to equal\nExpected: ${expectedSubject}\nReceived: ${subject}`).toBe(
+        expectedSubject
+      );
+      expect(isProtected, 'Virtru protection badge should be present').toBe(true);
+      expect(
+        normalize(body),
+        `Decrypted body mismatch\nExpected to contain: ${normalize(expectedBody)}\nReceived: ${normalize(body)}`
+      ).toContain(normalize(expectedBody));
     });
   });
 }

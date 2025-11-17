@@ -1,5 +1,7 @@
 import { Locator, Page } from '@playwright/test';
 
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 export const VIRTRU_TOGGLE_SELECTOR =
   '[aria-label*="Virtru secure toggle"], .virtru-toggle, [data-virtru-button="toggle"]';
 
@@ -44,7 +46,7 @@ export class VirtruOnboardingHelper {
       await locator.scrollIntoViewIfNeeded().catch(() => {});
     }
     await locator.click().catch(() => {});
-    await this.page.waitForTimeout(500);
+    await delay(500);
     return true;
   }
 
@@ -225,11 +227,11 @@ export class VirtruOnboardingHelper {
 
       if (await activateLink.isVisible({ timeout: 1000 }).catch(() => false)) {
         await activateLink.click().catch(() => {});
-        await this.page.waitForTimeout(1000);
+        await delay(1000);
         continue;
       }
 
-      await this.page.waitForTimeout(500);
+      await delay(500);
     }
 
     throw new Error('Virtru secure toggle did not appear within expected time.');
@@ -253,7 +255,7 @@ export class VirtruOnboardingHelper {
         return true;
       }
 
-      await this.page.waitForTimeout(250);
+      await delay(250);
     }
     return false;
   }
