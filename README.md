@@ -1,4 +1,4 @@
-# Virtru SDET — Playwright + Allure + GitHub Pages
+// no change?? wait patch??? not necessary??
 
 ## Prereqs
 - Node 20+, Edge installed (Chrome is currently unreliable — see below).
@@ -23,7 +23,7 @@ npm run allure:generate
 npm run allure:open
 
 ## Chrome automation note
-Chrome’s current automation policy unloads developer-mode extensions when Playwright/Federated automation is detected, even with `--load-extension`. After extensive mitigation attempts (fake profiles, external extension manifests, storage state), the Virtru extension still disappears during Chrome runs. Until Google relaxes this policy, **Edge is the only reliable channel** in CI. Mention this limitation explicitly during reviews.
+Chrome’s current automation policy unloads developer-mode extensions when Playwright/Federated automation is detected, even with `--load-extension`. After extensive mitigation attempts (fake profiles, external extension manifests, storage state), the Virtru extension still disappears during Chrome runs unless the browser is managed via Chrome Policies / Group Policy with a force-installed, signed Virtru extension. Because we do not control that enterprise setup, **Edge is the only reliable channel** in CI. Mention this limitation explicitly during reviews.
 
 ## CI, Allure & GitHub Pages
 - Workflow: `.github/workflows/e2e-edge-allure.yml`
