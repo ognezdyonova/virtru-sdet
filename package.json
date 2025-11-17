@@ -7,11 +7,12 @@
         "test": "playwright test",
         "test:headed": "PWDEBUG=console playwright test",
         "fetch:extension": "node scripts/downloadVirtruExtension.mjs",
-        "allure:generate": "allure generate --clean allure-results -o allure-report",
-        "allure:open": "allure open allure-report",
+        "allure:generate": "npx allure-commandline generate --clean allure-results -o allure-report",
+        "allure:open": "npx allure-commandline open allure-report",
         "prepare": "playwright install --with-deps"
     },
     "devDependencies": {
+        "allure-commandline": "^2.29.0",
         "@playwright/test": "^1.48.2",
         "@types/node": "^24.10.1",
         "adm-zip": "^0.5.16",
