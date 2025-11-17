@@ -155,7 +155,35 @@ export async function launchWithVirtruExtension(
     });
   });
 
+  // Verify that the Virtru extension is listed on the extensions page (Edge only for now).
+  if (channel === 'msedge') {
+    const verificationPage = await context.newPage();
+    try {
+      await verificationPage.goto('edge://extensions/', { waitUntil: 'domcontentloaded', timeout: 10_000 });
+      const virtruCard = verificationPage.getByText(/virtru/i).first();
+      await virtruCard.waitFor({ state: 'visible', timeout: 5_000 });
+      console.log('Verified Virtru extension appears in edge://extensions');
+    } catch (error) {
+      console.warn(`Unable to verify extension in edge://extensions: ${(error as Error).message}`);
+    } finally {
+      await verificationPage.close().catch(() => {});
+    }
+  }
+
   // Do not auto-open Gmail here to avoid duplicate tabs; tests will navigate explicitly.
+
+  if (channel === 'msedge') {
+    const extensionsPage = await context.newPage();
+    try {
+      await extensionsPage.goto('edge://extensions/', { waitUntil: 'domcontentloaded', timeout: 10_000 });
+      await extensionsPage.getByText(/virtru/i).first().waitFor({ state: 'visible', timeout: 5_000 });
+      console.log('✅ Virtru extension visible in edge://extensions');
+    } catch (error) {
+      console.warn(`⚠️ Unable to verify Virtru extension in edge://extensions: ${(error as Error).message}`);
+    } finally {
+      await extensionsPage.close().catch(() => {});
+    }
+  }
 
   return context;
 }

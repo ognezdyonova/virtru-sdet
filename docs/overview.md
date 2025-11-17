@@ -19,7 +19,7 @@
 2. **Headful only**: Extensions require headful mode, so CI runs fully headed in Edge.
 3. **Virtru onboarding variability**: Multiple modals/prompts appear (Activate, Done, Secure message). Page objects call shared helpers to clear them before continuing.
 4. **Environment-driven data**: Gmail credentials, recipients, and Virtru extension path provided via `.env`/GitHub secrets.
-5. **Automation limits in Chrome**: Chrome currently unloads developer-mode extensions when it detects automation (even with `--load-extension`). After extensive mitigation attempts (fake profiles, external manifests, storage state), the Virtru extension still disappears on Chrome. **Result: Edge is the only reliable channel**. 
+5. **Automation limits in Chrome**: Chrome currently unloads developer-mode extensions when it detects automation (even with `--load-extension`). After extensive mitigation attempts (fake profiles, external manifests, storage state), the Virtru extension still disappears on Chrome unless the browser is managed via Chrome Policies / Group Policy with a force-installed, signed Virtru extension. Because we do not control that enterprise configuration, **Edge is the only reliable channel**. Call this out explicitly during reviews so Chrome support is not expected until Google relaxes their policy or provides a signed automation-friendly package.
 6. **Doc-first workflow**: This overview + checklists must be updated whenever flows or tooling change.
 
 ### CI, Allure & GitHub Pages
