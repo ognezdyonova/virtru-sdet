@@ -1,4 +1,4 @@
-name: E2E Edge + Allure Pages
+name: E2E Edge/Chromium + Allure Pages
 
 on:
   push:
@@ -110,8 +110,64 @@ jobs:
           path: allure-report
           name: github-pages
 
+  tests-chromium:
+    name: Run E2E on Chromium (Ubuntu)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers (Chromium only)
+        run: npx playwright install chromium
+
+      - name: Fetch Virtru extension
+        run: npm run fetch:extension
+        env:
+          CHROME_PRODVERSION: 120.0.0.0
+
+      - name: Restore Gmail storage state (if provided)
+        env:
+          STORAGE_STATE_B64: ${{ secrets.GMAIL_STORAGE_STATE }}
+        run: |
+          if [ -z "$STORAGE_STATE_B64" ]; then
+            echo "GMAIL_STORAGE_STATE secret not provided; will perform interactive login."
+            exit 0
+          fi
+          echo "$STORAGE_STATE_B64" | base64 -d > storageState.json
+          echo "Restored storageState.json from secret."
+
+      - name: Run Playwright tests on Chromium
+        env:
+          BROWSER_CHANNELS: chromium
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_PASS: ${{ secrets.GMAIL_PASS }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          EMAIL_SUBJECT: ${{ secrets.EMAIL_SUBJECT }}
+          EMAIL_BODY: ${{ secrets.EMAIL_BODY }}
+          PLAYWRIGHT_STORAGE_STATE: storageState.json
+        run: xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" npm run test
+
+      - name: Upload Playwright artifacts (chromium)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chromium-artifacts
+          path: |
+            playwright-report
+            test-results
+            videos
+          if-no-files-found: ignore
+
   deploy-pages:
-    needs: tests-edge
+    needs: [tests-edge, tests-chromium]
     if: ${{ needs.tests-edge.result == 'success' }}
     runs-on: ubuntu-latest
     environment:
