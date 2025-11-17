@@ -1,10 +1,84 @@
 import { chromium, BrowserContext, Page } from '@playwright/test';
-import { existsSync, mkdtempSync } from 'fs';
+import { existsSync, mkdtempSync, readFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join, resolve } from 'path';
 
 const EXTENSION_READY_TIMEOUT = 10_000;
 const DEFAULT_EXTENSION_PATH = 'extensions/virtru';
+const STORAGE_STATE_PATH = process.env.PLAYWRIGHT_STORAGE_STATE
+  ? resolve(process.env.PLAYWRIGHT_STORAGE_STATE)
+  : undefined;
+
+type StorageState = {
+  cookies?: Parameters<BrowserContext['addCookies']>[0];
+  origins?: Array<{
+    origin: string;
+    localStorage?: Array<{ name: string; value: string }>;
+    sessionStorage?: Array<{ name: string; value: string }>;
+  }>;
+};
+
+async function applyStorageState(context: BrowserContext): Promise<void> {
+  if (!STORAGE_STATE_PATH) {
+    return;
+  }
+  if (!existsSync(STORAGE_STATE_PATH)) {
+    console.warn(
+      `PLAYWRIGHT_STORAGE_STATE was set to "${STORAGE_STATE_PATH}", but the file does not exist. Skipping state restore.`
+    );
+    return;
+  }
+
+  try {
+    const rawState = readFileSync(STORAGE_STATE_PATH, 'utf-8');
+    const state = JSON.parse(rawState) as StorageState;
+
+    if (state.cookies?.length) {
+      await context.addCookies(state.cookies).catch(error => {
+        console.warn(`Failed to apply cookies from storage state: ${(error as Error).message}`);
+      });
+    }
+
+    if (state.origins?.length) {
+      const bootstrapPage = await context.newPage();
+      for (const origin of state.origins) {
+        if (!origin.origin) continue;
+        try {
+          await bootstrapPage.goto(origin.origin, { waitUntil: 'domcontentloaded', timeout: 15_000 }).catch(() => {});
+          if (origin.localStorage?.length) {
+            await bootstrapPage.evaluate(entries => {
+              for (const entry of entries) {
+                try {
+                  window.localStorage.setItem(entry.name, entry.value);
+                } catch {
+                  // ignore per-entry failures
+                }
+              }
+            }, origin.localStorage);
+          }
+          if (origin.sessionStorage?.length) {
+            await bootstrapPage.evaluate(entries => {
+              for (const entry of entries) {
+                try {
+                  window.sessionStorage.setItem(entry.name, entry.value);
+                } catch {
+                  // ignore per-entry failures
+                }
+              }
+            }, origin.sessionStorage);
+          }
+        } catch (error) {
+          console.warn(`Failed to bootstrap storage for ${origin.origin}: ${(error as Error).message}`);
+        }
+      }
+      await bootstrapPage.close().catch(() => {});
+    }
+
+    console.log(`Applied storage state from ${STORAGE_STATE_PATH}`);
+  } catch (error) {
+    console.warn(`Failed to parse/apply storage state (${(error as Error).message}). Continuing without it.`);
+  }
+}
 
 export async function launchWithVirtruExtension(
   channel: 'chrome' | 'msedge' = 'chrome'
@@ -36,6 +110,8 @@ export async function launchWithVirtruExtension(
     recordVideo: { dir: 'videos/', size: { width: 1280, height: 720 } },
     viewport: null
   });
+
+  await applyStorageState(context);
 
   // Best-effort: wait briefly for Virtru extension to surface, then continue.
   const extPage = await Promise.race<Page | null>([
